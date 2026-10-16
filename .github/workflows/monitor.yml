@@ -1,0 +1,29 @@
+name: Surveiller Chromium
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 */6 * * *'
+permissions:
+  contents: read
+  issues: write
+concurrency:
+  group: chromium-monitor
+  cancel-in-progress: false
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Lire les fichiers de cette révision
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+          COMMIT: ${{ github.sha }}
+        run: |
+          gh api "repos/$REPOSITORY/contents/monitor.py?ref=$COMMIT" --jq .content | base64 --decode > monitor.py
+          gh api "repos/$REPOSITORY/contents/channel.json?ref=$COMMIT" --jq .content | base64 --decode > channel.json
+      - name: Comparer et notifier uniquement une nouvelle version
+        env:
+          GH_TOKEN: ${{ github.token }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: python3 monitor.py
