@@ -1,6 +1,11 @@
 name: Surveiller Chromium
 on:
   workflow_dispatch:
+    inputs:
+      test_notification:
+        description: 'Envoyer uniquement un message de test Discord'
+        type: boolean
+        default: false
   schedule:
     - cron: '17 */6 * * *'
 permissions:
@@ -26,4 +31,5 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          TEST_NOTIFICATION: ${{ inputs.test_notification }}
         run: python3 monitor.py
