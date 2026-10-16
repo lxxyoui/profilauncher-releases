@@ -34,6 +34,21 @@ def version(value):
     return tuple(map(int, value.split('.')))
 
 
+def validate_webhook(webhook):
+    parsed = urllib.parse.urlsplit(webhook)
+    if (parsed.scheme != 'https' or parsed.netloc != 'discord.com' or parsed.query or parsed.fragment
+            or not re.fullmatch(r'/api/webhooks/\d+/[\w-]+', parsed.path)):
+        raise ValueError('Destination Discord invalide')
+    return webhook
+
+
+def test_notification(webhook):
+    validate_webhook(webhook)
+    request(webhook+'?wait=true', payload={'content':'Profilauncher : test de notification réussi. Aucune donnée de profil transmise.',
+        'allowed_mentions':{'parse':[]}})
+    return 'Notification de test acceptée par Discord.'
+
+
 def monitor(channel, repository, token, webhook):
     if repository != 'lxxyoui/profilauncher-releases':
         raise ValueError('Dépôt inattendu')
@@ -43,10 +58,7 @@ def monitor(channel, repository, token, webhook):
         return 'La recette publiée ne présente pas de retard Chromium détecté.'
     if not webhook:
         return 'Retard détecté, mais DISCORD_WEBHOOK_URL absent : aucune notification envoyée.'
-    parsed = urllib.parse.urlsplit(webhook)
-    if (parsed.scheme != 'https' or parsed.netloc != 'discord.com' or parsed.query or parsed.fragment
-            or not re.fullmatch(r'/api/webhooks/\d+/[\w-]+', parsed.path)):
-        raise ValueError('Destination Discord invalide')
+    validate_webhook(webhook)
     title = f'[monitor] Chromium {stable} : recette {published}'
     api = f'https://api.github.com/repos/{repository}/issues'
     issues = request(api+'?state=all&per_page=100', token)
@@ -61,6 +73,9 @@ def monitor(channel, repository, token, webhook):
 
 def main():
     try:
+        if os.environ.get('TEST_NOTIFICATION','').lower() == 'true':
+            print(test_notification(os.environ.get('DISCORD_WEBHOOK_URL','')))
+            return 0
         with open('channel.json', encoding='utf-8') as source:
             channel = json.load(source)
         print(monitor(channel, os.environ['GITHUB_REPOSITORY'], os.environ['GH_TOKEN'], os.environ.get('DISCORD_WEBHOOK_URL', '')))
