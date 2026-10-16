@@ -1,0 +1,28 @@
+{
+  "payload": {
+    "schema": 1,
+    "sequence": 1,
+    "issued": 1792147928,
+    "expires": 1794739928,
+    "recipe": {
+      "schema": 1,
+      "revision": "2026-10-16-native-auto-channel-v190",
+      "tracking": "latest-channel",
+      "engine": {
+        "adapter": "brave-native-v1",
+        "channel": "beta",
+        "release": "v1.98.57",
+        "chromium": "156.0.8078.39",
+        "url": "https://github.com/brave/brave-browser/releases/download/v1.98.57/brave-v1.98.57-win32-x64.zip",
+        "sha256": "fa1585e64280d7b717779976c0ef16cee5ab0c99a56889d2058a4f7f16180828",
+        "size": 254245421,
+        "executable": "brave.exe",
+        "disable_features": [
+          "BraveFarblingTokenReset",
+          "BraveReduceLanguage"
+        ]
+      }
+    }
+  },
+  "signature": "IN3LISoDrYx3ShH6sYNNlZXBKjBa7rK7tFdg6EosiEzEaArEs0VlWDRIuygvgFKliTxvZlhsgTXfAh/Nqw+RBg=="
+}
